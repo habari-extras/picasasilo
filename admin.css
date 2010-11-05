@@ -1,0 +1,32 @@
+form input,
+form textarea,
+form select
+{
+	margin: 0 0 10px 0;
+}
+
+form .column
+{
+	float: left;
+	width: 400px;
+}
+
+form .column div,
+.formcontrol
+{
+	padding: 5px;
+}
+
+form label
+{
+	width: 150px;
+	display: inline-block;
+	float: left;
+}
+
+form #album_summary textarea
+{
+	width: 200px;
+	height: 50px;
+	margin-left: 0;
+}
