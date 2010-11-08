@@ -206,7 +206,7 @@ class Picasa extends PicasaAPI
 	 * @param string title The title of the photo
 	 * @return mixed An xml string of the result or false on error
 	 */
-	public function upload_photo($file_url, $album, $title)
+	public function upload_photo($file_url, $album, $title, $summary)
 	{
 		$photo .= 'Media multipart posting' . "\n";
 		$photo .= '--END_OF_PART' . "\n";
@@ -214,7 +214,7 @@ class Picasa extends PicasaAPI
 
 		$photo .= '<entry xmlns="http://www.w3.org/2005/Atom">' . "\n";
 		$photo .= '<title>' . $title . '</title>' . "\n";
-		$photo .= '<summary>aaa</summary>' . "\n";
+		$photo .= '<summary>' . $summary . '</summary>' . "\n";
 		$photo .= '<category scheme="http://schemas.google.com/g/2005#kind" term="http://schemas.google.com/photos/2007#photo"/>' . "\n";
 		$photo .= '</entry>' . "\n";
 
@@ -607,6 +607,10 @@ class PicasaSilo extends Plugin implements MediaSilo
 								<label for="upload">Album:</label>
 								<select name="upload_album">{$options}</select>
 							</div>
+							<div class="formcontrol">
+								<label for="summary">Summary:</label>
+								<textarea name="summary"></textarea>
+							</div>
 						  <div class="formcontrol"><input type="submit" name="upload" value="Upload"></div>
 						  <input type="hidden" name="path" value="{$fullpath}">
 						  <input type="hidden" name="panel" value="{$panelname}">
@@ -677,10 +681,11 @@ PICASA_UPLOAD;
 	{
 		$temp_file = $_FILES['upload_file']['tmp_name'];
 		$album = $_POST['upload_album'];
+		$summary = $_POST['summary'];
 		$filename = $_FILES['upload_file']['name'];
 
 		$picasa = new Picasa();
-		$result = $picasa->upload_photo($temp_file, $album, $filename);
+		$result = $picasa->upload_photo($temp_file, $album, $filename, $summary);
 
 		if(!$result)
 			return "<span>Error uploading photo</span>";
