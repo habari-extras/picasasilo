@@ -34,8 +34,11 @@ class PicasaAPI
  		$request->add_header(array("Authorization" => "AuthSub token=" .	$token));
 
 		// add extra headers
-		foreach($args['http_headers'] as $key => $value)
-			$request->add_header(array($key => $value));
+		if ( isset( $args['http_headers'] ) ) {
+			foreach($args['http_headers'] as $key => $value) {
+				$request->add_header(array($key => $value));
+			}
+		}
 
 		if($post_data != '')
 			$request->set_body($post_data);
@@ -248,7 +251,8 @@ class PicasaSilo extends Plugin implements MediaSilo
 
 	public function action_init()
 	{
-		Stack::add('admin_stylesheet',  $this->get_url(true) . 'admin.css', 'picasa-silo-admin-css', 'admin');
+//		Stack::add('admin_stylesheet',  $this->get_url(true) . 'admin.css', 'picasa-silo-admin-css', 'admin');
+		Stack::add('admin_stylesheet',  array( $this->get_url(true) . 'admin.css', 'screen' ), 'picasa-silo-admin-css', 'admin');
 	}
 
 	public function silo_info()
