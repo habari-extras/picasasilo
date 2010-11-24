@@ -750,13 +750,13 @@ PICASA_UPLOAD;
 			case 'Authorize':
 				if($this->is_auth())
 				{
-					echo "<p>This installation has already been authorized to access your Picasa account</p>";
-					echo "<p><a href='" . $deauth_url . "' title='DeAuthorize'>De-Authorize access to your Picasa account</p>";					
+					echo "<p>"._t("This installation has already been authorized to access your Picasa account.")."</p>";
+					echo "<p><a href='" . $deauth_url . "' title='"._t("De-Authorize")."'>"._t("De-Authorize access to your Picasa account")."</p>";					
 				}
 				else
 				{
-					echo "<p>You have not authorized access to your Picasa's account</p>";
-					echo "<p><a href='" . $auth_url . "' target='_blank'>Authorize</a> your Habari installation to access your Picasa account</p>";
+					echo "<p>"._t("You have not authorized access to your Picasa account")."</p>";
+					echo "<p><a href='" . $auth_url . "' target='_blank'>"._t("Authorize")."</a> "._t("your Habari installation to access your Picasa account")."</p>";
 				}
 				break;
 
@@ -764,16 +764,16 @@ PICASA_UPLOAD;
 				{
 					if(!isset($_GET['token']))
 					{
-						echo "<p>Your account has not been authorized access to this installation<p>";
-						echo "<p><a href='" . $auth_url . "' target='_blank'>Authorize</a> your Habari installation to access your Picasa account</p>";
+						echo "<p>"._t("Your account has not been authorized access to this installation.")."<p>";
+						echo "<p><a href='" . $auth_url . "' target='_blank'>"._t("Authorize")."</a> "._t("your Habari installation to access your Picasa account.")."</p>";
 					}
 					else
 					{
 						$token = $_GET['token'];
 						$picasa->exchange_token($token);
 
-						echo "<p>Your authorization was successful</p>";
-						echo "<p><a href='" . $deauth_url . "' title='DeAuthorize'>De-Authorize access to your Picasa account</p>";
+						echo "<p>"._t("Your authorization was successful.")."</p>";
+						//echo "<p><a href='" . $deauth_url . "' title='"._t("De-Authorize")."'>"._t("De-Authorize access to your Picasa account")."</p>";
 					}
 				}
 				break;
@@ -782,8 +782,8 @@ PICASA_UPLOAD;
 				{
 					Options::delete('picasa_token_' . User::identify()->id, $token);
 
-					echo "<p>De-Authorization successful. This installation will no longer be able to access your Picasa account</p>";
-					echo "<p><a href='" . $auth_url . "' target='_blank'>Authorize</a> your Habari installation to access your Picasa account</p>";
+					echo "<p>"._t("De-Authorization successful. This installation will no longer be able to access your Picasa account.")."</p>";
+					echo "<p><a href='" . $auth_url . "' title='"._t("Authorize")."' target='_blank'>"._t("Authorize")."</a> "._t("your Habari installation to access your Picasa account")."</p>";
 				}
 				break;
 			case 'Configure' :
@@ -807,12 +807,13 @@ PICASA_UPLOAD;
 			  {
 				  insert_image: function(fileindex, fileobj)
 					{
-						habari.editor.insertSelection('<a href="' + fileobj.picasa_url  + '"><img src="' + fileobj.url + '" /></a>');
+						habari.editor.insertSelection('<a href="' + fileobj.picasa_url  + '"><img class="picasaimg" src="' + fileobj.url + '" /></a>');
 					}
 				}
 
         habari.media.preview.picasa = function(fileindex, fileobj) 
 				{
+					//this does not work yet!
 					var stats = '';
 					var out = '';
 
