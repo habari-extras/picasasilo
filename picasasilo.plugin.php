@@ -273,7 +273,7 @@ class PicasaSilo extends Plugin implements MediaSilo
 	{
 		$path_elements = explode("/", $path);
 		$type = $path_elements[0];
-
+		$size = Options::get('picasasilo__picasa_size');
 		$picasa = new Picasa();
 
 		$results = array();
@@ -310,8 +310,11 @@ class PicasaSilo extends Plugin implements MediaSilo
 					$props['thumbnail_url'] = (string)$media->group->thumbnail->attributes()->url;
 					$props['title'] = (string)$media->group->title;
 					$props['filetype'] = str_replace("/", "_", $photo->content->attributes()->type);
-					$props['url'] = (string)$photo->content->attributes()->src;
-
+					//Add the desired size to the url
+					$src = (string)$photo->content->attributes()->src;
+					$props['url'] = substr($src,0,strrpos($src,'/'))."/$size".substr($src,strrpos($src,'/'));
+					$props['picasa_url'] = $src;
+					
 					$results[] = new MediaAsset(self::SILO_NAME . '/photos/' . $path_elements[1] . '/' . $media->group->title,
 																			false,
 																			$props);
@@ -465,10 +468,11 @@ class PicasaSilo extends Plugin implements MediaSilo
 			$picasa_ok = $this->is_auth();
 
 			if($picasa_ok)
-				$actions[] = 'De-Authorize';
+				$actions[] = _t('De-Authorize');
 			else
-				$actions[] = 'Authorize';
+				$actions[] = _t('Authorize');
 		}
+		$actions[] = _t('Configure');
 
 		return $actions;
 	}
@@ -782,17 +786,26 @@ PICASA_UPLOAD;
 					echo "<p><a href='" . $auth_url . "' target='_blank'>Authorize</a> your Habari installation to access your Picasa account</p>";
 				}
 				break;
+			case 'Configure' :
+				$ui = new FormUI( strtolower( get_class( $this ) ) );
+				$ui->append( 'select', 'picasa_size','option:picasasilo__picasa_size', _t( 'Default size for images in Posts:' ) );
+				$ui->picasa_size->options = array( 's75' => 'Square (75x75)', 's100' => 'Thumbnail (100px)', 's240' => 'Small (240px)', 's500' => 'Medium (500px)', 's1024' => 'Large (1024px)', '' => 'Original Size' );
+				$ui->append('submit', 'save', _t( 'Save' ) );
+				$ui->set_option('success_message', _t('Options saved'));
+				$ui->out();
+				break;
 			}
 		}
 	}
 
-	/*	public function action_admin_footer($theme) 
+		public function action_admin_footer($theme) 
 	{
 		echo <<< PICASA
 				<script type="text/javascript">
-				habari.media.output.picasa = 
+				
+				habari.media.output.image_jpeg = 
 			  {
-				  embed_photo: function(fileindex, fileobj)
+				  insert_image: function(fileindex, fileobj)
 					{
 						habari.editor.insertSelection('<a href="' + fileobj.picasa_url  + '"><img src="' + fileobj.url + '" /></a>');
 					}
@@ -804,6 +817,7 @@ PICASA_UPLOAD;
 					var out = '';
 
 					out += '<a href="#" onclick="habari.media.showdir(\'Picasa/photos/' + fileobj.picasa_id[0]  + '\'); return false;">';
+					
 					out += '<div class="mediatitle">' + fileobj.title + '</div>';
 					out += '<img src="' + fileobj.thumbnail_url + '" /><div class="mediastats"> ' + stats + '</div>';
 					out += '</a>';
@@ -811,7 +825,7 @@ PICASA_UPLOAD;
 				}
     </script>
 PICASA;
-	}*/
+	}
 }
 
 
