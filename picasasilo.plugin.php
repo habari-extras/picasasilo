@@ -747,7 +747,7 @@ PICASA_UPLOAD;
 		{
 			switch($action)
 			{
-			case 'Authorize':
+			case _t('Authorize'):
 				if($this->is_auth())
 				{
 					echo "<p>"._t("This installation has already been authorized to access your Picasa account.")."</p>";
@@ -778,7 +778,7 @@ PICASA_UPLOAD;
 				}
 				break;
 
-			case 'De-Authorize':
+			case _t('De-Authorize'):
 				{
 					Options::delete('picasa_token_' . User::identify()->id, $token);
 
@@ -786,7 +786,7 @@ PICASA_UPLOAD;
 					echo "<p><a href='" . $auth_url . "' title='"._t("Authorize")."' target='_blank'>"._t("Authorize")."</a> "._t("your Habari installation to access your Picasa account")."</p>";
 				}
 				break;
-			case 'Configure' :
+			case _t('Configure') :
 				$ui = new FormUI( strtolower( get_class( $this ) ) );
 				$ui->append( 'select', 'picasa_size','option:picasasilo__picasa_size', _t( 'Default size for images in Posts:' ) );
 				$ui->picasa_size->options = array( 's75' => 'Square (75x75)', 's100' => 'Thumbnail (100px)', 's240' => 'Small (240px)', 's500' => 'Medium (500px)', 's1024' => 'Large (1024px)', '' => 'Original Size' );
