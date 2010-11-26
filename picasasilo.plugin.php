@@ -335,7 +335,10 @@ class PicasaSilo extends Plugin implements MediaSilo
 					$props['thumbnail_url'] = (string)$media->group->thumbnail->attributes()->url;
 					$props['title'] = (string)$media->group->title;
 					$props['filetype'] = str_replace("/", "_", $photo->content->attributes()->type);
-					$props['url'] = (string)$photo->content->attributes()->src;
+					//Add the desired size to the url
+					$src = (string)$photo->content->attributes()->src;
+					$props['url'] = substr($src,0,strrpos($src,'/'))."/$size".substr($src,strrpos($src,'/'));
+					$props['picasa_url'] = $src;
 
 					$results[] = new MediaAsset(self::SILO_NAME . '/photos/' . '/' . $media->group->title,
 																			false,
@@ -789,6 +792,7 @@ PICASA_UPLOAD;
 			case _t('Configure') :
 				$ui = new FormUI( strtolower( get_class( $this ) ) );
 				$ui->append( 'select', 'picasa_size','option:picasasilo__picasa_size', _t( 'Default size for images in Posts:' ) );
+				//I did not _t() the following as it should be replaced. Picasa supports all sizes up to original size.
 				$ui->picasa_size->options = array( 's75' => 'Square (75x75)', 's100' => 'Thumbnail (100px)', 's240' => 'Small (240px)', 's500' => 'Medium (500px)', 's1024' => 'Large (1024px)', '' => 'Original Size' );
 				$ui->append('submit', 'save', _t( 'Save' ) );
 				$ui->set_option('success_message', _t('Options saved'));
