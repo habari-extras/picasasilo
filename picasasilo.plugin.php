@@ -741,10 +741,10 @@ PICASA_UPLOAD;
 		$picasa = new Picasa();
 		$auth_url = $picasa->get_auth_url() . $confirm_url;
 
-		$deauth_url = rawurlencode(URL::get('admin',
-																				array('page' => 'plugins',
-																							'configure' => $this->plugin_id(),
-																							'configaction' => 'De-Authorize')) . '#plugin_options');
+		$deauth_url = URL::get('admin',
+													 array('page' => 'plugins',
+																 'configure' => $this->plugin_id(),
+																 'configaction' => 'De-Authorize')) . '#plugin_options';
 
 		if($plugin_id == $this->plugin_id)
 		{
@@ -776,7 +776,7 @@ PICASA_UPLOAD;
 						$picasa->exchange_token($token);
 
 						echo "<p>"._t("Your authorization was successful.")."</p>";
-						//echo "<p><a href='" . $deauth_url . "' title='"._t("De-Authorize")."'>"._t("De-Authorize access to your Picasa account")."</p>";
+						echo "<p><a href='" . $deauth_url . "' title='". _t("De-Authorize") . "'>" . _t("De-Authorize access to your Picasa account") . "</p>";
 					}
 				}
 				break;
