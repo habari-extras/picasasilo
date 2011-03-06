@@ -309,7 +309,8 @@ class PicasaSilo extends Plugin implements MediaSilo
 					$props['filetype'] = 'picasa';
 					$props['thumbnail_url'] = (string)$media->group->thumbnail->attributes()->url;
 					$props['title'] = (string)$media->group->title;
-					$props['filetype'] = str_replace("/", "_", $photo->content->attributes()->type);
+					//$props['filetype'] = str_replace("/", "_", $photo->content->attributes()->type);
+					//Utils::debug($photo->content->attributes()->type);
 					//Add the desired size to the url
 					$src = (string)$photo->content->attributes()->src;
 					$props['url'] = substr($src,0,strrpos($src,'/'))."/$size".substr($src,strrpos($src,'/'));
@@ -334,7 +335,7 @@ class PicasaSilo extends Plugin implements MediaSilo
 					$props['filetype'] = 'picasa';
 					$props['thumbnail_url'] = (string)$media->group->thumbnail->attributes()->url;
 					$props['title'] = (string)$media->group->title;
-					$props['filetype'] = str_replace("/", "_", $photo->content->attributes()->type);
+					//$props['filetype'] = str_replace("/", "_", $photo->content->attributes()->type);
 					//Add the desired size to the url
 					$src = (string)$photo->content->attributes()->src;
 					$props['url'] = substr($src,0,strrpos($src,'/'))."/$size".substr($src,strrpos($src,'/'));
@@ -807,8 +808,8 @@ PICASA_UPLOAD;
 		echo <<< PICASA
 				<script type="text/javascript">
 				
-				habari.media.output.image_jpeg = 
-			  {
+				habari.media.output.picasa = 
+				{
 				  insert_image: function(fileindex, fileobj)
 					{
 						habari.editor.insertSelection('<a href="' + fileobj.picasa_url  + '"><img class="picasaimg" src="' + fileobj.url + '" /></a>');
@@ -821,7 +822,8 @@ PICASA_UPLOAD;
 					var stats = '';
 					var out = '';
 
-					out += '<a href="#" onclick="habari.media.showdir(\'Picasa/photos/' + fileobj.picasa_id[0]  + '\'); return false;">';
+					// CRAP
+					// out += '<a href="#" onclick="habari.media.showdir(\'Picasa/photos/' + fileobj.picasa_id[0]  + '\'); return false;">';
 					
 					out += '<div class="mediatitle">' + fileobj.title + '</div>';
 					out += '<img src="' + fileobj.thumbnail_url + '" /><div class="mediastats"> ' + stats + '</div>';
