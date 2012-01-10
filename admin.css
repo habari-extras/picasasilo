@@ -1,3 +1,15 @@
+#silo_picasa {
+	height: 275px;
+}
+#silo_picasa .media_browser {
+	height: 230px;
+}
+#silo_picasa .media_browser .mediaphotos > ul li.end{
+	height: 215px;
+}
+#silo_picasa .media_dirlevel {
+	height: 215px;
+}
 form input,
 form textarea,
 form select

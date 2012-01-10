@@ -251,8 +251,17 @@ class PicasaSilo extends Plugin implements MediaSilo
 
 	public function action_init()
 	{
-//		Stack::add('admin_stylesheet',  $this->get_url(true) . 'admin.css', 'picasa-silo-admin-css', 'admin');
-		Stack::add('admin_stylesheet',  array( $this->get_url(true) . 'admin.css', 'screen' ), 'picasa-silo-admin-css', 'admin');
+		$this->add_template('picasasilo.album', dirname(__FILE__) . '/picasasilo.album.php');
+		$this->add_template( 'block.picasa_album', dirname(__FILE__) . '/block.picasa_album.php' );
+	}
+	
+	public function action_admin_header($theme)
+	{
+		$vars = Controller::get_handler_vars();
+		if ( $theme->admin_page == 'plugins' && isset( $vars['configure'] ) && $vars['configure'] === $this->plugin_id )
+		{
+			Stack::add('admin_stylesheet',  array( $this->get_url(true) . 'admin.css', 'screen' ), 'picasa-silo-admin-css', 'admin');
+		}
 	}
 
 	public function silo_info()
@@ -309,6 +318,7 @@ class PicasaSilo extends Plugin implements MediaSilo
 					$props['filetype'] = 'picasa';
 					$props['thumbnail_url'] = (string)$media->group->thumbnail->attributes()->url;
 					$props['title'] = (string)$media->group->title;
+					$props['description'] = (string)$media->group->description;
 					//$props['filetype'] = str_replace("/", "_", $photo->content->attributes()->type);
 					//Utils::debug($photo->content->attributes()->type);
 					//Add the desired size to the url
@@ -322,6 +332,7 @@ class PicasaSilo extends Plugin implements MediaSilo
 					
 				}
 			}
+			
 			break;
 
 		case 'recent':
@@ -803,7 +814,7 @@ PICASA_UPLOAD;
 		}
 	}
 
-		public function action_admin_footer($theme) 
+	public function action_admin_footer($theme) 
 	{
 		echo <<< PICASA
 				<script type="text/javascript">
@@ -812,7 +823,7 @@ PICASA_UPLOAD;
 				{
 				  insert_image: function(fileindex, fileobj)
 					{
-						habari.editor.insertSelection('<a href="' + fileobj.picasa_url  + '"><img class="picasaimg" src="' + fileobj.url + '" /></a>');
+						habari.editor.insertSelection('<a href="' + fileobj.picasa_url  + '"><img class="picasaimg" src="' + fileobj.url + '" alt="' + fileobj.description + '"/></a>');
 					}
 				}
 
@@ -826,6 +837,7 @@ PICASA_UPLOAD;
 					// out += '<a href="#" onclick="habari.media.showdir(\'Picasa/photos/' + fileobj.picasa_id[0]  + '\'); return false;">';
 					
 					out += '<div class="mediatitle">' + fileobj.title + '</div>';
+					out += '<div class="mediatitle">' + fileobj.description + '</div>';
 					out += '<img src="' + fileobj.thumbnail_url + '" /><div class="mediastats"> ' + stats + '</div>';
 					out += '</a>';
 					return out;
