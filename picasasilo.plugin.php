@@ -813,6 +813,105 @@ PICASA_UPLOAD;
 			}
 		}
 	}
+	
+	function cache_albumlist()
+	{
+		if(Cache::has(array(__CLASS__, "picasa_albumids")) && Cache::has(array(__CLASS__, "picasa_albumlinks"))) return;
+		
+		$picasa = new Picasa();
+		$picasa->userid = $post->user_id;
+		
+		$xml = $picasa->get_albums();
+		
+		foreach($xml->channel->item as $album)
+		{
+			$albumids[(string)$album->title] = (string)$album->children('http://schemas.google.com/photos/2007')->id;
+			$albumlinks[(string)$album->title] = (string)$album->link;
+			Cache::set(array(__CLASS__, "picasa_albumids"), $albumids, 3600 * 12);
+			Cache::set(array(__CLASS__, "picasa_albumlinks"), $albumlinks, 3600 * 12);
+		}
+	}
+	
+	public function filter_post_picasa_images($out, $post)
+	{
+		try
+		{
+			// Check if there is any album requested
+			$albumname = $post->info->picasa_album;
+			if(!isset($albumname) || empty($albumname)) 
+				return $out;
+			
+			// TODO: Size to post options
+			$size = "s200";
+			
+			//Check if the photos are already cached first because then we're already finished
+			if(Cache::has(array(__CLASS__, "album_$albumname")))
+				return Cache::get(array(__CLASS__, "album_$albumname"));
+			
+			$picasa = new Picasa();
+			$picasa->userid = $post->user_id;
+			
+			$this->cache_albumlist();
+			$albumids = Cache::get(array(__CLASS__, "picasa_albumids"));
+			$albumlinks = Cache::get(array(__CLASS__, "picasa_albumlinks"));
+			
+			// Get the actual photos
+			$xml = $picasa->get_photos(array("album" => $albumids[$albumname]));
+			
+			foreach($xml->entry as $photo)
+			{
+			
+				// Warum drei URLs?
+				// TODO: Irgendwas mit thumbnails machen
+				$media = $photo->children('http://search.yahoo.com/mrss/');
+				// $props['thumbnail_url'] = (string)$media->group->thumbnail->attributes()->url;
+				$props['title'] = (string)$media->group->title;
+				$props['description'] = (string)$media->group->description;
+				$src = (string)$photo->content->attributes()->src;
+				$props['url'] = substr($src,0,strrpos($src,'/'))."/$size".substr($src,strrpos($src,'/'));
+				$props['picasa_url'] = $src;
+				
+				$photos[] = $props;
+			}
+			
+			// TODO: Add cache expire option to the admin interface
+			Cache::set(array(__CLASS__, "album_$albumname"), $photos, 60 * 60 * 24);
+		}
+		catch(exception $e) { $photos = array(_t(vsprintf("No photos available or an error occured. Sometimes reloading the page helps. %s", $e), __CLASS__)); }
+		
+		
+		return $photos;
+	}
+	
+	public function filter_post_picasalink($out, $post)
+	{
+		$this->cache_albumlist();
+		$albumlinks = Cache::get(array(__CLASS__, "picasa_albumlinks"));
+		return $albumlinks[$post->info->picasa_album];
+	}
+	
+	public function action_form_publish($form, $post, $context)
+	{
+		$form->insert('tags', 'text', 'picasa_album', 'null:null', _t('Picasa album to assign to this post', __CLASS__), 'admincontrol_textArea');
+		$form->picasa_album->value = $post->info->picasa_album;
+		$form->picasa_album->template = 'admincontrol_text';
+	}
+	
+	// Save the fields
+	public function action_publish_post( $post, $form )
+	{
+		$post->info->picasa_album = $form->picasa_album->value;
+	}
+	
+	// Delete album list cache when a new post with album is published
+	public function action_post_publish_after( $post )
+	{
+		$albumname = $post->info->picasa_album;
+		if(!isset($albumname) || empty($albumname)) 
+			return $out;
+		Cache::expire(array(__CLASS__, "picasa_albumids"));
+		Cache::expire(array(__CLASS__, "picasa_albumlinks"));
+	}
 
 	public function action_admin_footer($theme) 
 	{
