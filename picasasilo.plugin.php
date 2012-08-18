@@ -262,6 +262,56 @@ class PicasaSilo extends Plugin implements MediaSilo
 		{
 			Stack::add('admin_stylesheet',  array( $this->get_url(true) . 'admin.css', 'screen' ), 'picasa-silo-admin-css', 'admin');
 		}
+		
+		Stack::add('admin_header_javascript', $this->get_url(true) . 'picasasilo.js', 'picasasilo', 'jquery');
+		// Add the AJAX callback URL.
+		$url = 'picasagallery.url=\''.URL::get('auth_ajax', array('context' => 'picasagallery')).'\'';
+		Stack::add('admin_header_javascript', $url, 'picasasilo_url', 'picasasilo');
+	}
+	
+		/**
+	 * Respond to Javascript callbacks
+	 * The name of this method is action_auth_ajax_ followed by what you passed to the context parameter above.
+	 */
+	public function action_auth_ajax_picasagallery($handler)
+	{
+		// Get the data that was sent
+		$album = $handler->handler_vars['album'];
+		
+		// Get the album content (this is almost the same code as in silo_dir())
+		$path_elements = explode("/", $album);
+		$size = Options::get('picasasilo__picasa_size');
+		$picasa = new Picasa();
+		$xml = $picasa->get_photos(array($path_elements[1] => $path_elements[2]));
+
+		foreach($xml->entry as $photo)
+		{
+			$media = $photo->children('http://search.yahoo.com/mrss/');
+			$props['title'] = (string)$media->group->title;
+			$props['description'] = (string)$media->group->description;
+			//Add the desired size to the url for the thumbnail
+			$src = (string)$photo->content->attributes()->src;
+			$props['thumbnail_url'] = substr($src, 0, strrpos($src, '/')) . "/$size" . substr($src, strrpos($src, '/'));
+			$props['picasa_url'] = $src;
+			
+			$imagelist[] = $props;
+		}
+		
+		// Convert list to gallery
+		$gallerystring = "";
+		if(count($imagelist))
+		{
+			foreach($imagelist as $image)
+			{
+				$gallerystring .= "<a href='" . $image["picasa_url"] . "' rel='gallery' class='picasa_link'><img src='" . $image["thumbnail_url"] . "' class='picasa_img' alt='" . $image["description"] . "' title='" . $image["title"] . "'></a>";
+			}
+		}
+
+		// Wipe anything else that's in the buffer
+		ob_end_clean();
+	
+		// Send the response
+		echo json_encode($gallerystring);
 	}
 
 	public function silo_info()
@@ -542,6 +592,9 @@ class PicasaSilo extends Plugin implements MediaSilo
 
 			if(User::identify()->can('create_directories'))
 				$controls[] = $this->link_panel(self::SILO_NAME . '/', 'new-album', 'Create Album');
+			
+			// Add a link that sets the current album and then kicks off AJAX action that inserts a gallery
+			$controls[] = "<a href='#' onclick='picasagallery.album=\"$path\";start_picasagallery();'>Insert Gallery</a>";
 		}
 
 		return $controls;
@@ -911,38 +964,6 @@ PICASA_UPLOAD;
 			return $out;
 		Cache::expire(array(__CLASS__, "picasa_albumids"));
 		Cache::expire(array(__CLASS__, "picasa_albumlinks"));
-	}
-
-	public function action_admin_footer($theme) 
-	{
-		echo <<< PICASA
-				<script type="text/javascript">
-				
-				habari.media.output.picasa = 
-				{
-				  insert_image: function(fileindex, fileobj)
-					{
-						habari.editor.insertSelection('<a href="' + fileobj.picasa_url  + '"><img class="picasaimg" src="' + fileobj.url + '" alt="' + fileobj.description + '"/></a>');
-					}
-				}
-
-        habari.media.preview.picasa = function(fileindex, fileobj) 
-				{
-					//this does not work yet!
-					var stats = '';
-					var out = '';
-
-					// CRAP
-					// out += '<a href="#" onclick="habari.media.showdir(\'Picasa/photos/' + fileobj.picasa_id[0]  + '\'); return false;">';
-					
-					out += '<div class="mediatitle">' + fileobj.title + '</div>';
-					out += '<div class="mediatitle">' + fileobj.description + '</div>';
-					out += '<img src="' + fileobj.thumbnail_url + '" /><div class="mediastats"> ' + stats + '</div>';
-					out += '</a>';
-					return out;
-				}
-    </script>
-PICASA;
 	}
 }
 
