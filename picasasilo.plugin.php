@@ -374,7 +374,8 @@ class PicasaSilo extends Plugin implements MediaSilo
 					//Add the desired size to the url
 					$src = (string)$photo->content->attributes()->src;
 					$props['url'] = substr($src,0,strrpos($src,'/'))."/$size".substr($src,strrpos($src,'/'));
-					$props['picasa_url'] = $src;
+					// Do the same for fullsize, Google does not return fullsize by default
+					$props['picasa_url'] = substr($src,0,strrpos($src,'/'))."/s0".substr($src,strrpos($src,'/'));
 					
 					$results[] = new MediaAsset(self::SILO_NAME . '/photos/' . $path_elements[1] . '/' . $media->group->title,
 																			false,
