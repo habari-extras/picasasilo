@@ -292,7 +292,8 @@ class PicasaSilo extends Plugin implements MediaSilo
 			//Add the desired size to the url for the thumbnail
 			$src = (string)$photo->content->attributes()->src;
 			$props['thumbnail_url'] = substr($src, 0, strrpos($src, '/')) . "/$size" . substr($src, strrpos($src, '/'));
-			$props['picasa_url'] = $src;
+			// Do the same for fullsize, Google does not return fullsize by default
+			$props['picasa_url'] = substr($src,0,strrpos($src,'/'))."/s0".substr($src,strrpos($src,'/'));
 			
 			$imagelist[] = $props;
 		}
@@ -306,9 +307,6 @@ class PicasaSilo extends Plugin implements MediaSilo
 				$gallerystring .= "<a href='" . $image["picasa_url"] . "' rel='gallery' class='picasa_link'><img src='" . $image["thumbnail_url"] . "' class='picasa_img' alt='" . $image["description"] . "' title='" . $image["title"] . "'></a>";
 			}
 		}
-
-		// Wipe anything else that's in the buffer
-		ob_end_clean();
 	
 		// Send the response
 		echo json_encode($gallerystring);
