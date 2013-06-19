@@ -137,11 +137,11 @@ class Picasa extends PicasaAPI
 		{
 			$xml = $this->call(PicasaAPI::$QUERY_URLS['picasa'] . "?kind=photo&max-results=10");
 		}
-		elseif($args['album'])
+		elseif(isset($args['album']))
 		{
 			$xml = $this->call(PicasaAPI::$QUERY_URLS['picasa'] . "/albumid/" . $args['album'] . "?prettyprint=true");
 		}
-		elseif($args['tag'])
+		elseif(isset($args['tag']))
 		{
 			$xml = $this->call(PicasaAPI::$QUERY_URLS['picasa'] . "?kind=photo&tag=" . $args['tag'] . "&prettyprint=true");
 		}
