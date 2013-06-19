@@ -375,7 +375,7 @@ class PicasaSilo extends Plugin implements MediaSilo
 					// Do the same for fullsize, Google does not return fullsize by default
 					$props['picasa_url'] = substr($src,0,strrpos($src,'/'))."/s0".substr($src,strrpos($src,'/'));
 					
-					$results[] = new MediaAsset(self::SILO_NAME . '/photos/' . $path_elements[1] . '/' . $media->group->title,
+					$results[] = new MediaAsset(self::SILO_NAME . '/photos/' . $path_elements[2] . '/' . $media->group->title,
 																			false,
 																			$props);
 					
@@ -401,7 +401,7 @@ class PicasaSilo extends Plugin implements MediaSilo
 					$props['url'] = substr($src,0,strrpos($src,'/'))."/$size".substr($src,strrpos($src,'/'));
 					$props['picasa_url'] = $src;
 
-					$results[] = new MediaAsset(self::SILO_NAME . '/photos/' . '/' . $media->group->title,
+					$results[] = new MediaAsset(self::SILO_NAME . '/photos/' . $media->group->title,
 																			false,
 																			$props);
 					
